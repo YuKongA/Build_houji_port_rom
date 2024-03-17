@@ -1,0 +1,13 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+*.yml text
+*.sh text eol=lf
+*.json text eol=lf
+*.py text diff=python
+*.qcom text eol=lf
+*.zip binary
+*.apk binary
+*.ko binary
+*.jar binary
+.gitattributes text
+.gitattributes export-ignore

@@ -1,0 +1,53 @@
+﻿name: Build ROM for Houji
+on:
+  workflow_dispatch:
+    inputs:
+      URL:
+        description: "移植包下载地址"
+        required: true
+        default: 'https://cdn-ota.azureedge.net/OS1.0.6.0.UNACNXM/miui_AURORA_OS1.0.6.0.UNACNXM_e078a99e28_14.0.zip'
+      VENDOR_URL:
+        description: "底包下载地址"
+        required: true
+        default: 'https://cdn-ota.azureedge.net/OS1.0.32.0.UNCCNXM/miui_HOUJI_OS1.0.32.0.UNCCNXM_4fd0e15877_14.0.zip'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 最大化构建环境
+        uses: easimon/maximize-build-space@master
+        with:
+          swap-size-mb: 8192
+          root-reserve-mb: 4096
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+      - name: 检出仓库文件
+        uses: actions/checkout@main
+      - name: 准备所需环境
+        run: |
+          sudo timedatectl set-timezone Asia/Shanghai
+          sudo apt-get install python3 aria2 zstd
+      - name: 构建 ROM
+        run: |
+          sudo bash "$GITHUB_WORKSPACE"/make.sh ${{ github.event.inputs.URL }} ${{ github.event.inputs.VENDOR_URL }} $GITHUB_ENV $GITHUB_WORKSPACE
+      - name: 处理 ROM
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE"/GithubRelease
+          cd "$GITHUB_WORKSPACE"/GithubRelease
+          sudo split -b 1536M -d "$GITHUB_WORKSPACE"/zip/"${{ env.rom_name }}" "${{ env.rom_name }}"
+          cd "$GITHUB_WORKSPACE"
+          touch file.log
+          echo -e "移植版本: ${{ env.origin_os_version }}\n底包版本: ${{ env.vendor_os_version }}\n安全补丁: ${{ env.security_patch }}\n基线版本: ${{ env.base_line }}" > file.log
+      - name: 上传到 Github Release
+        uses: ncipollo/release-action@main
+        with:
+          artifacts: ${{ github.workspace }}/GithubRelease/*
+          name: "${{ env.origin_os_version }}"
+          tag: "${{ env.origin_os_version }}"
+          bodyFile: "${{ github.workspace }}/file.log"
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          token: ${{ secrets.GITHUB_TOKEN }}
