@@ -320,15 +320,6 @@ done
 cd "$GITHUB_WORKSPACE"/apk/services/
 sudo $apktool_jar b -q -f -c "$GITHUB_WORKSPACE"/apk/services/ -o services.jar
 sudo cp -rf "$GITHUB_WORKSPACE"/apk/services/services.jar "$GITHUB_WORKSPACE"/images/system/system/framework/services.jar
-# 对齐系统更新获取更新路径
-echo -e "\e[1;31m - 对齐系统更新获取更新路径 \e[0m"
-for mod_device_build in $(sudo find "$GITHUB_WORKSPACE"/images/ -type f -name 'build.prop' 2>/dev/null | xargs grep -rl 'ro.product.mod_device=' | sed 's/^\.\///' | sort); do
-  if echo "${date}" | grep -q "XM" || echo "${date}" | grep -q "DEV"; then
-    sudo sed -i 's/ro.product.mod_device=[^*]*/ro.product.mod_device=houji/' "$mod_device_build"
-  else
-    sudo sed -i 's/ro.product.mod_device=[^*]*/ro.product.mod_device=houji_pre/' "$mod_device_build"
-  fi
-done
 # 替换更改文件/删除多余文件
 echo -e "\e[1;31m - 替换更改文件/删除多余文件 \e[0m"
 sudo cp -r "$GITHUB_WORKSPACE"/"${device}"/* "$GITHUB_WORKSPACE"/images
