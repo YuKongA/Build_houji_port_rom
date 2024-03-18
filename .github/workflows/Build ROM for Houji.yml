@@ -5,7 +5,7 @@ on:
       URL:
         description: "移植包下载地址"
         required: true
-        default: 'https://cdn-ota.azureedge.net/OS1.0.6.0.UNACNXM/miui_AURORA_OS1.0.6.0.UNACNXM_e078a99e28_14.0.zip'
+        default: 'https://cdn-ota.azureedge.net/OS1.0.7.0.UNACNXM/miui_AURORA_OS1.0.7.0.UNACNXM_81a48e3c20_14.0.zip'
       VENDOR_URL:
         description: "底包下载地址"
         required: true

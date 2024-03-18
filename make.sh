@@ -376,7 +376,7 @@ echo -e "\e[1;31m - 定制 ROM 包名 \e[0m"
 md5=$(md5sum "$GITHUB_WORKSPACE"/zip/miui_${device}_${origin_os_version}.zip)
 echo "MD5=${md5:0:32}" >>$GITHUB_ENV
 zip_md5=${md5:0:10}
-rom_name="miui_${device}_${origin_os_version}_${zip_md5}_${android_version}.0_YuKongA.zip"
+rom_name="miui_HOUJI_${origin_os_version}_${zip_md5}_${android_version}.0_YuKongA.zip"
 sudo mv "$GITHUB_WORKSPACE"/zip/miui_${device}_${origin_os_version}.zip "$GITHUB_WORKSPACE"/zip/"${rom_name}"
 echo "rom_name="${rom_name}"" >>$GITHUB_ENV
 
