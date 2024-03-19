@@ -40,13 +40,13 @@ jobs:
           sudo split -b 1536M -d "$GITHUB_WORKSPACE"/zip/"${{ env.rom_name }}" "${{ env.rom_name }}"
           cd "$GITHUB_WORKSPACE"
           touch file.log
-          echo -e "移植版本: ${{ env.origin_os_version }}\n底包版本: ${{ env.vendor_os_version }}\n安全补丁: ${{ env.security_patch }}\n基线版本: ${{ env.base_line }}" > file.log
+          echo -e "底包版本: ${{ env.vendor_os_version }}\n底包安全补丁版本: ${{ env.vendor_security_patch }}\n底包基线版本: ${{ env.vendor_base_line}}\n\n移植包版本: ${{ env.port_os_version }}\n移植包安全补丁版本: ${{ env.port_security_patch }}\n移植包基线版本: ${{ env.port_base_line }}" > file.log
       - name: 上传到 Github Release
         uses: ncipollo/release-action@main
         with:
           artifacts: ${{ github.workspace }}/GithubRelease/*
-          name: "${{ env.origin_os_version }}"
-          tag: "${{ env.origin_os_version }}"
+          name: "${{ env.port_os_version }}"
+          tag: "${{ env.port_os_version }}"
           bodyFile: "${{ github.workspace }}/file.log"
           allowUpdates: true
           artifactErrorsFailBuild: true
