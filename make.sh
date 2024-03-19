@@ -23,7 +23,7 @@ android_version=$(echo ${URL} | cut -d"_" -f5 | cut -d"." -f1) # Android 版本�
 build_time=$(date) && build_utc=$(date -d "$build_time" +%s)   # 构建时间
 
 magiskboot="$GITHUB_WORKSPACE"/tools/magiskboot
-ksud="$GITHUB_WORKSPACE"/tools/KernelSU/ksud
+ksud="$GITHUB_WORKSPACE"/tools/ksud
 
 a7z="$GITHUB_WORKSPACE"/tools/7zzs
 payload_extract="$GITHUB_WORKSPACE"/tools/payload_extract
