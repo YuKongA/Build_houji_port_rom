@@ -261,10 +261,8 @@ sudo cp -f "$GITHUB_WORKSPACE"/"${device}"_files/MiuiCamera.apk "$GITHUB_WORKSPA
 # 替换相机标定
 echo -e "${Red}- 替换相机标定"
 sudo unzip -o -q "$GITHUB_WORKSPACE"/"${device}"_files/CameraTools_beta.zip -d "$GITHUB_WORKSPACE"/images/product/app/
-# 占位毒瘤和广告
-echo -e "${Red}- 占位毒瘤和广告"
-sudo rm -rf "$GITHUB_WORKSPACE"/images/product/app/AnalyticsCore/*
-sudo cp -f "$GITHUB_WORKSPACE"/"${device}"_files/AnalyticsCore.apk "$GITHUB_WORKSPACE"/images/product/app/AnalyticsCore
+# 占位广告应用
+echo -e "${Red}- 占位广告应用"
 sudo rm -rf "$GITHUB_WORKSPACE"/images/product/app/MSA/*
 sudo cp -f "$GITHUB_WORKSPACE"/"${device}"_files/MSA.apk "$GITHUB_WORKSPACE"/images/product/app/MSA
 # 替换完美图标
