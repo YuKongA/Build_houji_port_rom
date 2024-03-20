@@ -5,12 +5,12 @@ VENDOR_URL="$2"       # 底包下载地址
 GITHUB_ENV="$3"       # 输出环境变量
 GITHUB_WORKSPACE="$4" # 工作目录
 
+device=houji # 设备代号
+
 Red='\033[1;31m'    # 粗体红色
 Yellow='\033[1;33m' # 粗体黄色
 Blue='\033[1;34m'   # 粗体蓝色
 Green='\033[1;32m'  # 粗体绿色
-
-device=houji # 设备代号
 
 port_os_version=$(echo ${URL} | cut -d"/" -f4)                   # 移植包的 OS 版本号, 例: OS1.0.7.0.UNACNXM
 port_version=$(echo ${port_os_version} | sed 's/OS1/V816/g')     # 移植包的实际版本号, 例: V816.0.7.0.UNACNXM
@@ -32,6 +32,8 @@ erofs_mkfs="$GITHUB_WORKSPACE"/tools/mkfs.erofs
 lpmake="$GITHUB_WORKSPACE"/tools/lpmake
 apktool_jar="java -jar "$GITHUB_WORKSPACE"/tools/apktool.jar"
 
+sudo timedatectl set-timezone Asia/Shanghai
+sudo apt-get install python3 aria2 zstd
 sudo chmod -R 777 "$GITHUB_WORKSPACE"/tools
 
 Start_Time() {
@@ -162,7 +164,7 @@ echo "vendor_base_line=$vendor_base_line" >>$GITHUB_ENV
 echo -e "${Red}- 开始功能修复"
 Start_Time
 # 添加 KernelSU 支持 (可选择)
-echo -e "${Red}- 添加 KernelSU 支持（可选择）"
+echo -e "${Red}- 添加 KernelSU 支持 (可选择)"
 mkdir -p "$GITHUB_WORKSPACE"/init_boot
 cd "$GITHUB_WORKSPACE"/init_boot
 cp -f "$GITHUB_WORKSPACE"/"${device}"/firmware-update/init_boot.img "$GITHUB_WORKSPACE"/init_boot
@@ -224,6 +226,10 @@ sudo unzip -o -q "$GITHUB_WORKSPACE"/"${device}"_files/device_features.zip -d "$
 echo -e "${Red}- 替换 displayconfig 文件"
 sudo rm -rf "$GITHUB_WORKSPACE"/images/product/etc/displayconfig/*
 sudo unzip -o -q "$GITHUB_WORKSPACE"/"${device}"_files/displayconfig.zip -d "$GITHUB_WORKSPACE"/images/product/etc/displayconfig/
+# 修复精准电量 (亮屏可用时长)
+echo -e "${Red}- 修复精准电量 (亮屏可用时长)"
+sudo rm -rf "$GITHUB_WORKSPACE"/images/system/system/app/PowerKeeper/*
+sudo unzip -o -q "$GITHUB_WORKSPACE"/"${device}"_files/PowerKeeper.zip -d "$GITHUB_WORKSPACE"/images/system/system/app/PowerKeeper/
 # 统一 build.prop
 echo -e "${Red}- 统一 build.prop"
 sudo sed -i 's/ro.build.user=[^*]*/ro.build.user=YuKongA/' "$GITHUB_WORKSPACE"/images/system/system/build.prop

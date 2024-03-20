@@ -26,10 +26,6 @@ jobs:
           remove-haskell: 'true'
       - name: 检出仓库文件
         uses: actions/checkout@main
-      - name: 准备所需环境
-        run: |
-          sudo timedatectl set-timezone Asia/Shanghai
-          sudo apt-get install python3 aria2 zstd
       - name: 构建 ROM
         run: |
           sudo bash "$GITHUB_WORKSPACE"/make.sh ${{ github.event.inputs.URL }} ${{ github.event.inputs.VENDOR_URL }} $GITHUB_ENV $GITHUB_WORKSPACE
