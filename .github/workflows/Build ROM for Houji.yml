@@ -55,4 +55,5 @@ jobs:
           base64 --decode base64.txt > ~/.config/rclone/rclone.conf
           rclone delete kr:/public-bucket/houji
           rclone mkdir kr:/public-bucket/houji
-          rclone copy -P ./zip/* kr:/public-bucket/houji
+          rclone copy -P ./zip/"${{ env.rom_name }}" kr:/public-bucket/houji
+          echo "Oracle S3 link: https://objectstorage.ap-seoul-1.oraclecloud.com/n/cnkkaulgjby7/b/public-bucket/o/houji/"${{ env.rom_name }}""
