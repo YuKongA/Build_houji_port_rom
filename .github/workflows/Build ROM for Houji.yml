@@ -53,6 +53,6 @@ jobs:
           mkdir -p ~/.config/rclone/
           echo ${{ secrets.confbase64 }} > base64.txt
           base64 --decode base64.txt > ~/.config/rclone/rclone.conf
-          rclone delete kr:/public-bucket/HyperOS/houji
-          rclone mkdir kr:/public-bucket/HyperOS/houji
-          rclone copy -P ./zip/* kr:/public-bucket/HyperOS/houji
+          rclone delete kr:/public-bucket/houji
+          rclone mkdir kr:/public-bucket/houji
+          rclone copy -P ./zip/* kr:/public-bucket/houji
