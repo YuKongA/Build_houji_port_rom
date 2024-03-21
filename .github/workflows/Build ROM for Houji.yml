@@ -33,7 +33,7 @@ jobs:
         run: |
           mkdir -p "$GITHUB_WORKSPACE"/GithubRelease
           cd "$GITHUB_WORKSPACE"/GithubRelease
-          sudo split -b 1536M -d "$GITHUB_WORKSPACE"/zip/"${{ env.rom_name }}" "${{ env.rom_name }}"
+          sudo split -b 1536M -d "$GITHUB_WORKSPACE"/zip/${{ env.rom_name }} ${{ env.rom_name }}
           cd "$GITHUB_WORKSPACE"
           touch file.log
           echo -e "底包版本: ${{ env.vendor_os_version }}\n底包安全补丁版本: ${{ env.vendor_security_patch }}\n底包基线版本: ${{ env.vendor_base_line}}\n\n移植包版本: ${{ env.port_os_version }}\n移植包安全补丁版本: ${{ env.port_security_patch }}\n移植包基线版本: ${{ env.port_base_line }}" > file.log
@@ -41,13 +41,12 @@ jobs:
         uses: ncipollo/release-action@main
         with:
           artifacts: ${{ github.workspace }}/GithubRelease/*
-          name: "${{ env.port_os_version }}"
-          tag: "${{ env.port_os_version }}"
+          name: ${{ env.port_os_version }}
+          tag: ${{ env.port_os_version }}
           bodyFile: "${{ github.workspace }}/file.log"
           allowUpdates: true
           artifactErrorsFailBuild: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: 上传到Oracle S3
+      - name: 上传到 Oracle S3
         run: |
           sudo -v ; curl https://rclone.org/install.sh | sudo bash
           mkdir -p ~/.config/rclone/
@@ -55,5 +54,5 @@ jobs:
           base64 --decode base64.txt > ~/.config/rclone/rclone.conf
           rclone delete kr:/public-bucket/houji
           rclone mkdir kr:/public-bucket/houji
-          rclone copy -P ./zip/"${{ env.rom_name }}" kr:/public-bucket/houji
-          echo "Oracle S3 link: https://objectstorage.ap-seoul-1.oraclecloud.com/n/cnkkaulgjby7/b/public-bucket/o/houji/"${{ env.rom_name }}""
+          rclone copy -P "$GITHUB_WORKSPACE"/zip/${{ env.rom_name }} kr:/public-bucket/houji
+          echo "Oracle S3 link: https://objectstorage.ap-seoul-1.oraclecloud.com/n/cnkkaulgjby7/b/public-bucket/o/houji/${{ env.rom_name }}"
