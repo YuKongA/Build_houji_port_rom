@@ -22,19 +22,21 @@ vendor_zip_name=$(echo ${VENDOR_URL} | cut -d"/" -f5)            # 底包的 zip
 android_version=$(echo ${URL} | cut -d"_" -f5 | cut -d"." -f1) # Android 版本号, 例: 14
 build_time=$(date) && build_utc=$(date -d "$build_time" +%s)   # 构建时间
 
+sudo timedatectl set-timezone Asia/Shanghai
+sudo apt-get remove -y firefox zstd
+sudo apt-get install python3 aria2
+sudo chmod -R 777 "$GITHUB_WORKSPACE"/tools
+
 magiskboot="$GITHUB_WORKSPACE"/tools/magiskboot
 ksud="$GITHUB_WORKSPACE"/tools/ksud
 
 a7z="$GITHUB_WORKSPACE"/tools/7zzs
+zstd="$GITHUB_WORKSPACE"/tools/zstd
 payload_extract="$GITHUB_WORKSPACE"/tools/payload_extract
 erofs_extract="$GITHUB_WORKSPACE"/tools/extract.erofs
 erofs_mkfs="$GITHUB_WORKSPACE"/tools/mkfs.erofs
 lpmake="$GITHUB_WORKSPACE"/tools/lpmake
 apktool_jar="java -jar "$GITHUB_WORKSPACE"/tools/apktool.jar"
-
-sudo timedatectl set-timezone Asia/Shanghai
-sudo apt-get install python3 aria2 zstd
-sudo chmod -R 777 "$GITHUB_WORKSPACE"/tools
 
 Start_Time() {
   Start_ns=$(date +'%s%N')
