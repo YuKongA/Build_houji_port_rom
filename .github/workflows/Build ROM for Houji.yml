@@ -47,6 +47,7 @@ jobs:
           allowUpdates: true
           artifactErrorsFailBuild: true
       - name: 上传到 Oracle S3
+        if: github.repository == 'YuKongA/Action_Build_Houji_ROM'
         run: |
           sudo -v ; curl https://rclone.org/install.sh | sudo bash
           mkdir -p ~/.config/rclone/
