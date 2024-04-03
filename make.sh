@@ -1,5 +1,9 @@
 #!/bin/bash
 
+sudo timedatectl set-timezone Asia/Shanghai
+sudo apt-get remove -y firefox zstd
+sudo apt-get install python3 aria2
+
 URL="$1"              # 移植包下载地址
 VENDOR_URL="$2"       # 底包下载地址
 GITHUB_ENV="$3"       # 输出环境变量
@@ -22,14 +26,9 @@ vendor_zip_name=$(echo ${VENDOR_URL} | cut -d"/" -f5)            # 底包的 zip
 android_version=$(echo ${URL} | cut -d"_" -f5 | cut -d"." -f1) # Android 版本号, 例: 14
 build_time=$(date) && build_utc=$(date -d "$build_time" +%s)   # 构建时间
 
-sudo timedatectl set-timezone Asia/Shanghai
-sudo apt-get remove -y firefox zstd
-sudo apt-get install python3 aria2
 sudo chmod -R 777 "$GITHUB_WORKSPACE"/tools
-
 magiskboot="$GITHUB_WORKSPACE"/tools/magiskboot
 ksud="$GITHUB_WORKSPACE"/tools/ksud
-
 a7z="$GITHUB_WORKSPACE"/tools/7zzs
 zstd="$GITHUB_WORKSPACE"/tools/zstd
 payload_extract="$GITHUB_WORKSPACE"/tools/payload_extract
@@ -39,41 +38,38 @@ lpmake="$GITHUB_WORKSPACE"/tools/lpmake
 apktool_jar="java -jar "$GITHUB_WORKSPACE"/tools/apktool.jar"
 
 Start_Time() {
-  Start_ns=$(date +'%s%N')
+  Start_s=$(date +%s)
+  Start_ns=$(date +%N)
 }
 
 End_Time() {
-  local End_ns time
-  End_ns=$(date +'%s%N')
-  time=$(expr $End_ns - $Start_ns)
-  [[ -z "$time" ]] && return 0
+  local End_s End_ns time_s time_ns
+  End_s=$(date +%s)
+  End_ns=$(date +%N)
+  time_s=$((End_s - Start_s))
+  time_ns=$((End_ns - Start_ns))
+  if ((time_ns < 0)); then
+    ((time_s--))
+    ((time_ns += 1000000000))
+  fi
 
-  local s ms ns h min
-  ns=${time:0-9}
-  s=${time%$ns}
+  local ns ms sec min hour
+  ns=$((time_ns % 1000000))
+  ms=$((time_ns / 1000000))
+  sec=$((time_s % 60))
+  min=$((time_s / 60 % 60))
+  hour=$((time_s / 3600))
 
-  if [[ $s -ge 10800 ]]; then
-    echo -e "${Green}- 本次$1用时: ${Blue}少于100毫秒"
-  elif [[ $s -ge 3600 ]]; then
-    ms=$(expr $ns / 1000000)
-    h=$(expr $s / 3600)
-    s=$(expr $s % 3600)
-    [[ $s -ge 60 ]] && {
-      min=$(expr $s / 60)
-      s=$(expr $s % 60)
-    }
-    echo -e "${Green}- 本次$1用时: ${Blue}$h小时$min分$s秒$ms毫秒"
-  elif [[ $s -ge 60 ]]; then
-    ms=$(expr $ns / 1000000)
-    min=$(expr $s / 60)
-    s=$(expr $s % 60)
-    echo -e "${Green}- 本次$1用时: ${Blue}$min分$s秒$ms毫秒"
-  elif [[ -n $s ]]; then
-    ms=$(expr $ns / 1000000)
-    echo -e "${Green}- 本次$1用时: ${Blue}$s秒$ms毫秒"
-  else
-    ms=$(expr $ns / 1000000)
+  if ((hour > 0)); then
+    echo -e "${Green}- 本次$1用时: ${Blue}$hour小时$min分$sec秒$ms毫秒"
+  elif ((min > 0)); then
+    echo -e "${Green}- 本次$1用时: ${Blue}$min分$sec秒$ms毫秒"
+  elif ((sec > 0)); then
+    echo -e "${Green}- 本次$1用时: ${Blue}$sec秒$ms毫秒"
+  elif ((ms > 0)); then
     echo -e "${Green}- 本次$1用时: ${Blue}$ms毫秒"
+  else
+    echo -e "${Green}- 本次$1用时: ${Blue}$ns纳秒"
   fi
 }
 
@@ -236,17 +232,17 @@ sudo unzip -o -q "$GITHUB_WORKSPACE"/"${device}"_files/PowerKeeper.zip -d "$GITH
 echo -e "${Red}- 统一 build.prop"
 sudo sed -i 's/ro.build.user=[^*]*/ro.build.user=YuKongA/' "$GITHUB_WORKSPACE"/images/system/system/build.prop
 for port_build_prop in $(sudo find "$GITHUB_WORKSPACE"/images/ -type f -name "build.prop"); do
-  sudo sed -i 's/build.date=[^*]*/build.date='"$build_time"'/' "$port_build_prop"
-  sudo sed -i 's/build.date.utc=[^*]*/build.date.utc='"$build_utc"'/' "$port_build_prop"
-  sudo sed -i 's/'"${port_os_version}"'/'"${vendor_os_version}"'/g' "$port_build_prop"
-  sudo sed -i 's/'"${port_version}"'/'"${vendor_version}"'/g' "$port_build_prop"
-  sudo sed -i 's/'"${port_base_line}"'/'"${vendor_base_line}"'/g' "$port_build_prop"
-  sudo sed -i 's/persist.device_config.mglru_native.lru_gen_config=[^*]*/persist.device_config.mglru_native.lru_gen_config=all/' "$port_build_prop"
+  sudo sed -i 's/build.date=[^*]*/build.date='"${build_time}"'/' "${port_build_prop}"
+  sudo sed -i 's/build.date.utc=[^*]*/build.date.utc='"${build_utc}"'/' "${port_build_prop}"
+  sudo sed -i 's/'"${port_os_version}"'/'"${vendor_os_version}"'/g' "${port_build_prop}"
+  sudo sed -i 's/'"${port_version}"'/'"${vendor_version}"'/g' "${port_build_prop}"
+  sudo sed -i 's/'"${port_base_line}"'/'"${vendor_base_line}"'/g' "${port_build_prop}"
+  sudo sed -i 's/ro.product.product.name=[^*]*/ro.product.product.name='"${device}"'/' "${port_build_prop}"
 done
 for vendor_build_prop in $(sudo find "$GITHUB_WORKSPACE"/"${device}"/ -type f -name "*build.prop"); do
-  sudo sed -i 's/build.date=[^*]*/build.date='"$build_time"'/' "$vendor_build_prop"
-  sudo sed -i 's/build.date.utc=[^*]*/build.date.utc='"$build_utc"'/' "$vendor_build_prop"
-  sudo sed -i 's/ro.mi.os.version.incremental=[^*]*/ro.mi.os.version.incremental='"$port_os_version"'/' "$vendor_build_prop"
+  sudo sed -i 's/build.date=[^*]*/build.date='"${build_time}"'/' "${vendor_build_prop}"
+  sudo sed -i 's/build.date.utc=[^*]*/build.date.utc='"${build_utc}"'/' "${vendor_build_prop}"
+  sudo sed -i 's/ro.mi.os.version.incremental=[^*]*/ro.mi.os.version.incremental='"${port_os_version}"'/' "${vendor_build_prop}"
 done
 # 精简部分应用
 echo -e "${Red}- 精简部分应用"
