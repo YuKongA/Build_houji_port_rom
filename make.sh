@@ -167,7 +167,7 @@ mkdir -p "$GITHUB_WORKSPACE"/init_boot
 cd "$GITHUB_WORKSPACE"/init_boot
 cp -f "$GITHUB_WORKSPACE"/"${device}"/firmware-update/init_boot.img "$GITHUB_WORKSPACE"/init_boot
 $ksud boot-patch -b "$GITHUB_WORKSPACE"/init_boot/init_boot.img --magiskboot $magiskboot --kmi android14-6.1
-mv -f "$GITHUB_WORKSPACE"/init_boot/kernelsu_boot*.img "$GITHUB_WORKSPACE"/"${device}"/firmware-update/init_boot-kernelsu.img
+mv -f "$GITHUB_WORKSPACE"/init_boot/kernelsu_*.img "$GITHUB_WORKSPACE"/"${device}"/firmware-update/init_boot-kernelsu.img
 rm -rf "$GITHUB_WORKSPACE"/init_boot
 # 替换 vendor_boot 的 fstab
 echo -e "${Red}- 替换 Vendor Boot 的 fstab"
