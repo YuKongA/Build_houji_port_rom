@@ -272,7 +272,7 @@ sudo cp -f "$GITHUB_WORKSPACE"/"${device}"_files/MSA.apk "$GITHUB_WORKSPACE"/ima
 # 替换完美图标
 echo -e "${Red}- 替换完美图标"
 cd "$GITHUB_WORKSPACE"
-git clone https://github.com/pzcn/Perfect-Icons-Completion-Project.git icons --depth 1
+git clone --depth=1 https://github.com/pzcn/Perfect-Icons-Completion-Project.git icons &>/dev/null
 for pkg in "$GITHUB_WORKSPACE"/images/product/media/theme/miui_mod_icons/dynamic/*; do
   if [[ -d "$GITHUB_WORKSPACE"/icons/icons/$pkg ]]; then
     rm -rf "$GITHUB_WORKSPACE"/icons/icons/$pkg

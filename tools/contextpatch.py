@@ -1,32 +1,58 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 import os
 from difflib import SequenceMatcher
 from re import escape
 
 fix_permission = {
+    "system/apex/": "u:object_r:system_file:s0",
+    "system/app/.apk": "u:object_r:system_file:s0",
+    "system/etc/permission/.xml": "u:object_r:system_file:s0",
+    "system_ext/app/.apk": "u:object_r:system_file:s0",
+    "system_ext/etc/permission/.xml": "u:object_r:system_file:s0",
+    "product/app/.apk": "u:object_r:system_file:s0",
+    "product/overlay/": "u:object_r:system_file:s0",
+    "system_ext/bin/init/.sh": "u:object_r:system_file:s0",
+    "system_ext/cust/": "u:object_r:system_file:s0",
+    "product/displayconfig/.xml": "u:object_r:system_file:s0",
+    "product/device_features/.xml": "u:object_r:system_file:s0",
+    "/data-app/.apk": "u:object_r:system_file:s0",
+    "system_ext/lost+found": "u:object_r:system_file:s0",
+    "product/lost+found": "u:object_r:system_file:s0",
+    "mi_ext/lost+found": "u:object_r:system_file:s0",
+    "odm/lost+found": "u:object_r:vendor_file:s0",
+    "vendor/lost+found": "u:object_r:vendor_file:s0",
+    "vendor_dlkm/lost+found": "u:object_r:vendor_file:s0",
+    "system/lost+found": "u:object_r:rootfs:s0",
+    "system_dlkm": "u:object_r:system_dlkm_file:s0",
+    "system/etc/seccomp_policy": "u:object_r:system_seccomp_policy_file:s0",
+    "vendor/app/.apk": "u:object_r:vendor_app_file:s0",
     "odm/etc/permission/.xml": "u:object_r:vendor_configs_file:s0",
-    "system/app/*/.apk": "u:object_r:system_file:s0",
     "vendor/etc/permission/.xml": "u:object_r:vendor_configs_file:s0",
-    "data-app/.apk": "u:object_r:system_file:s0",
-    "android.hardware.wifi": "u:object_r:hal_wifi_default_exec:s0",
-    "bin/idmap": "u:object_r:idmap_exec:s0",
-    "bin/fsck": "u:object_r:fsck_exec:s0",
-    "bin/e2fsck": "u:object_r:fsck_exec:s0",
-    "bin/logcat": "u:object_r:logcat_exec:s0",
-    "system/bin": "u:object_r:system_file:s0",
-    "/system/bin/init": "u:object_r:init_exec:s0",
-    r"/lost\+found": "u:object_r:rootfs:s0"
+    "/hw/android.hardware.audio": "u:object_r:hal_audio_default_exec:s0",
+    "/hw/android.hardware.bluetooth": "u:object_r:hal_bluetooth_default_exec:s0",
+    "/hw/android.hardware.boot": "u:object_r:hal_bootctl_default_exec:s0",
+    "/hw/android.hardware.power": "u:object_r:hal_power_default_exec:s0",
+    "/hw/android.hardware.wifi": "u:object_r:hal_wifi_default_exec:s0",
+    "/bin/idmap": "u:object_r:idmap_exec:s0",
+    "/bin/fsck": "u:object_r:fsck_exec:s0",
+    "/bin/e2fsck": "u:object_r:fsck_exec:s0",
+    "/bin/logcat": "u:object_r:logcat_exec:s0",
+    "/bin/audioserver": "u:object_r:audioserver_exec:s0",
+    "/etc/passwd": "u:object_r:system_passwd_file:s0",
+    "system/bin/apexd": "u:object_r:apexd_exec:s0",
+    "system/bin/init": "u:object_r:init_exec:s0",
+    r"/lost\+found": "u:object_r:rootfs:s0",
 }
 
 
 def scan_context(file) -> dict:  # 读取context文件返回一个字典
     context = {}
-    with open(file, "r", encoding='utf-8') as file_:
+    with open(file, "r", encoding="utf-8") as file_:
         for i in file_.readlines():
             filepath, *other = i.strip().split()
-            filepath = filepath.replace(r'\@', '@')
+            filepath = filepath.replace(r"\@", "@")
             context[filepath] = other
             if len(other) > 1:
                 print(f"[Warn] {i[0]} has too much data.Skip.")
@@ -36,18 +62,28 @@ def scan_context(file) -> dict:  # 读取context文件返回一个字典
 
 def scan_dir(folder) -> list:  # 读取解包的目录，返回一个字典
     part_name = os.path.basename(folder)
-    allfiles = ['/', '/lost+found', f'/{part_name}/lost+found', f'/{part_name}', f'/{part_name}/']
+    allfiles = [
+        "/",
+        "/lost+found",
+        f"/{part_name}/lost+found",
+        f"/{part_name}",
+        f"/{part_name}/",
+    ]
     for root, dirs, files in os.walk(folder, topdown=True):
         for dir_ in dirs:
-            yield os.path.join(root, dir_).replace(folder, '/' + part_name).replace('\\', '/')
+            yield os.path.join(root, dir_).replace(folder, "/" + part_name).replace(
+                "\\", "/"
+            )
         for file in files:
-            yield os.path.join(root, file).replace(folder, '/' + part_name).replace('\\', '/')
+            yield os.path.join(root, file).replace(folder, "/" + part_name).replace(
+                "\\", "/"
+            )
         for rv in allfiles:
             yield rv
 
 
 def str_to_selinux(string: str):
-    return escape(string).replace('\\-', '-')
+    return escape(string).replace("\\-", "-")
 
 
 def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
@@ -56,17 +92,19 @@ def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
     r_new_fs = {}
     add_new = 0
     print("ContextPatcher: Load origin %d" % (len(fs_file.keys())) + " entries")
-    # 定义默认SeLinux标签
-    permission_d = [f'u:object_r:{os.path.basename(dir_path).replace("_a", "")}_file:s0']
+    # 定义默认 SeLinux 标签
+    permission_d = [
+        f'u:object_r:{os.path.basename(dir_path).replace("_a", "")}_file:s0'
+    ]
     for i in scan_dir(os.path.abspath(dir_path)):
-        # 把不可打印字符替换为*
+        # 把不可打印字符替换为 *
         if not i.isprintable():
-            tmp = ''
+            tmp = ""
             for c in i:
-                tmp += c if c.isprintable() else '*'
+                tmp += c if c.isprintable() else "*"
             i = tmp
-        if ' ' in i:
-            i = i.replace(' ', '*')
+        if " " in i:
+            i = i.replace(" ", "*")
         i = str_to_selinux(i)
         if fs_file.get(i):
             # 如果存在直接使用默认的
@@ -75,7 +113,7 @@ def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
             permission = None
             if r_new_fs.get(i):
                 continue
-            # 确认i不为空
+            # 确认 i 不为空
             if i:
                 # 搜索已定义的权限
                 for f in fix_permission.keys():
@@ -83,7 +121,12 @@ def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
                         permission = [fix_permission[f]]
                 if not permission:
                     for e in fs_file.keys():
-                        if SequenceMatcher(None, (path := os.path.dirname(i)), e).quick_ratio() >= 0.75:
+                        if (
+                            SequenceMatcher(
+                                None, (path := os.path.dirname(i)), e
+                            ).quick_ratio()
+                            >= 0.75
+                        ):
                             if e == path:
                                 continue
                             permission = fs_file[e]
@@ -91,8 +134,8 @@ def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
                         else:
                             permission = permission_d
             if " " in permission:
-                permission = permission.replace(' ', '')
-            print(f"ADD [{i} {permission}], May Not Right")
+                permission = permission.replace(" ", "")
+            print(f"Add [{i} {permission}], May Not Right")
             add_new += 1
             r_new_fs[i] = permission
             new_fs[i] = permission
@@ -101,9 +144,11 @@ def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
 
 def main(dir_path, fs_config) -> None:
     new_fs, add_new = context_patch(scan_context(os.path.abspath(fs_config)), dir_path)
-    with open(fs_config, "w+", encoding='utf-8', newline='\n') as f:
-        f.writelines([i + " " + " ".join(new_fs[i]) + "\n" for i in sorted(new_fs.keys())])
-    print('ContextPatcher: Add %d' % add_new + " entries")
+    with open(fs_config, "w+", encoding="utf-8", newline="\n") as f:
+        f.writelines(
+            [i + " " + " ".join(new_fs[i]) + "\n" for i in sorted(new_fs.keys())]
+        )
+    print("ContextPatcher: Add %d" % add_new + " entries")
 
 
 def Usage():
@@ -112,7 +157,7 @@ def Usage():
     print("    This script will auto patch file_context")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 3:
@@ -122,5 +167,7 @@ if __name__ == '__main__':
         main(sys.argv[1], sys.argv[2])
         print("Done!")
     else:
-        print("The path or filetype you have given may wrong, please check it wether correct.")
+        print(
+            "The path or filetype you have given may wrong, please check it wether correct."
+        )
         Usage()
