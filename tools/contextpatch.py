@@ -3,47 +3,44 @@
 
 import os
 from difflib import SequenceMatcher
-from re import escape
+from typing import Generator, Any
+from re import escape, match
 
 fix_permission = {
-    "system/apex/": "u:object_r:system_file:s0",
-    "system/app/.apk": "u:object_r:system_file:s0",
-    "system/etc/permission/.xml": "u:object_r:system_file:s0",
-    "system_ext/app/.apk": "u:object_r:system_file:s0",
-    "system_ext/etc/permission/.xml": "u:object_r:system_file:s0",
-    "product/app/.apk": "u:object_r:system_file:s0",
-    "product/overlay/": "u:object_r:system_file:s0",
-    "system_ext/bin/init/.sh": "u:object_r:system_file:s0",
-    "system_ext/cust/": "u:object_r:system_file:s0",
-    "product/displayconfig/.xml": "u:object_r:system_file:s0",
-    "product/device_features/.xml": "u:object_r:system_file:s0",
-    "/data-app/.apk": "u:object_r:system_file:s0",
-    "system_ext/lost+found": "u:object_r:system_file:s0",
-    "product/lost+found": "u:object_r:system_file:s0",
-    "mi_ext/lost+found": "u:object_r:system_file:s0",
-    "odm/lost+found": "u:object_r:vendor_file:s0",
-    "vendor/lost+found": "u:object_r:vendor_file:s0",
-    "vendor_dlkm/lost+found": "u:object_r:vendor_file:s0",
-    "system/lost+found": "u:object_r:rootfs:s0",
-    "system_dlkm": "u:object_r:system_dlkm_file:s0",
-    "system/etc/seccomp_policy": "u:object_r:system_seccomp_policy_file:s0",
-    "vendor/app/.apk": "u:object_r:vendor_app_file:s0",
-    "odm/etc/permission/.xml": "u:object_r:vendor_configs_file:s0",
-    "vendor/etc/permission/.xml": "u:object_r:vendor_configs_file:s0",
-    "/hw/android.hardware.audio": "u:object_r:hal_audio_default_exec:s0",
-    "/hw/android.hardware.bluetooth": "u:object_r:hal_bluetooth_default_exec:s0",
-    "/hw/android.hardware.boot": "u:object_r:hal_bootctl_default_exec:s0",
-    "/hw/android.hardware.power": "u:object_r:hal_power_default_exec:s0",
-    "/hw/android.hardware.wifi": "u:object_r:hal_wifi_default_exec:s0",
-    "/bin/idmap": "u:object_r:idmap_exec:s0",
-    "/bin/fsck": "u:object_r:fsck_exec:s0",
-    "/bin/e2fsck": "u:object_r:fsck_exec:s0",
-    "/bin/logcat": "u:object_r:logcat_exec:s0",
-    "/bin/audioserver": "u:object_r:audioserver_exec:s0",
-    "/etc/passwd": "u:object_r:system_passwd_file:s0",
-    "system/bin/apexd": "u:object_r:apexd_exec:s0",
-    "system/bin/init": "u:object_r:init_exec:s0",
+    r"/system_ext/lost\+found": "u:object_r:system_file:s0",
+    r"/product/lost\+found": "u:object_r:system_file:s0",
+    r"/mi_ext/lost\+found": "u:object_r:system_file:s0",
+    r"/odm/lost\+found": "u:object_r:vendor_file:s0",
+    r"/vendor/lost\+found": "u:object_r:vendor_file:s0",
+    r"/vendor_dlkm/lost\+found": "u:object_r:vendor_file:s0",
+    r"/system/lost\+found": "u:object_r:rootfs:s0",
     r"/lost\+found": "u:object_r:rootfs:s0",
+    "/mi_ext/product/lib*": "u:object_r:system_lib_file:s0",
+    "/system/system/app/*": "u:object_r:system_file:s0",
+    "/system/system/priv-app/*": "u:object_r:system_file:s0",
+    "/system/system/lib*": "u:object_r:system_lib_file:s0",
+    "/system/system/bin/apexd": "u:object_r:apexd_exec:s0",
+    "/system/system/bin/init": "u:object_r:init_exec:s0",
+    "system_ext/lib*": "u:object_r:system_lib_file:s0",
+    "/product/lib*": "u:object_r:system_lib_file:s0",
+    "/odm/app/*": "u:object_r:vendor_app_file:s0",
+    "/odm/etc*": "u:object_r:vendor_configs_file:s0",
+    "/vendor/apex*": "u:object_r:vendor_apex_file:s0",
+    "/vendor/app/*": "u:object_r:vendor_app_file:s0",
+    "/vendor/priv-app/*": "u:object_r:vendor_app_file:s0",
+    "/vendor/etc*": "u:object_r:vendor_configs_file:s0",
+    "/vendor/firmware*": "u:object_r:vendor_firmware_file:s0",
+    "/vendor/framework*": "u:object_r:vendor_framework_file:s0",
+    "*/hw/android.hardware.audio*": "u:object_r:hal_audio_default_exec:s0",
+    "*/hw/android.hardware.bluetooth*": "u:object_r:hal_bluetooth_default_exec:s0",
+    "*/hw/android.hardware.boot*": "u:object_r:hal_bootctl_default_exec:s0",
+    "*/hw/android.hardware.power*": "u:object_r:hal_power_default_exec:s0",
+    "*/hw/android.hardware.wifi*": "u:object_r:hal_wifi_default_exec:s0",
+    "*/bin/idmap": "u:object_r:idmap_exec:s0",
+    "*/bin/fsck": "u:object_r:fsck_exec:s0",
+    "*/bin/e2fsck": "u:object_r:fsck_exec:s0",
+    "*/bin/logcat": "u:object_r:logcat_exec:s0",
+    "*/bin/audioserver": "u:object_r:audioserver_exec:s0",
 }
 
 
@@ -60,14 +57,14 @@ def scan_context(file) -> dict:  # 读取context文件返回一个字典
     return context
 
 
-def scan_dir(folder) -> list:  # 读取解包的目录，返回一个字典
+def scan_dir(folder) -> Generator[Any, Any, Any]:  # 读取解包的目录，返回一个生成器
     part_name = os.path.basename(folder)
     allfiles = [
         "/",
         "/lost+found",
-        f"/{part_name}/lost+found",
         f"/{part_name}",
         f"/{part_name}/",
+        f"/{part_name}/lost+found",
     ]
     for root, dirs, files in os.walk(folder, topdown=True):
         for dir_ in dirs:
@@ -93,9 +90,12 @@ def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
     add_new = 0
     print("ContextPatcher: Load origin %d" % (len(fs_file.keys())) + " entries")
     # 定义默认 SeLinux 标签
-    permission_d = [
-        f'u:object_r:{os.path.basename(dir_path).replace("_a", "")}_file:s0'
-    ]
+    if dir_path.endswith("system_dlkm"):
+        permission_d = ["u:object_r:system_dlkm_file:s0"]
+    elif dir_path.endswith(("odm", "vendor", "vendor_dlkm")):
+        permission_d = ["u:object_r:vendor_file:s0"]
+    else:
+        permission_d = ["u:object_r:system_file:s0"]
     for i in scan_dir(os.path.abspath(dir_path)):
         # 把不可打印字符替换为 *
         if not i.isprintable():
@@ -107,25 +107,31 @@ def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
             i = i.replace(" ", "*")
         i = str_to_selinux(i)
         if fs_file.get(i):
-            # 如果存在直接使用默认的
+            # 如果已经存在, 直接使用原来的
             new_fs[i] = fs_file[i]
         else:
             permission = None
+            # 确认 i 不为空
             if r_new_fs.get(i):
                 continue
-            # 确认 i 不为空
             if i:
-                # 搜索已定义的权限
+                # 如果路径符合已定义的内容, 直接将 permission 赋值为对应的值
                 for f in fix_permission.keys():
-                    if f in i:
+                    pattern = f.replace("*", ".*")
+                    if i == pattern:
                         permission = [fix_permission[f]]
+                        break
+                    if match(pattern, i):
+                        permission = [fix_permission[f]]
+                        break
+                # 如果路径不符合已定义的内容, 尝试从 fs_file 中查找相似的路径
                 if not permission:
                     for e in fs_file.keys():
                         if (
                             SequenceMatcher(
                                 None, (path := os.path.dirname(i)), e
                             ).quick_ratio()
-                            >= 0.75
+                            >= 0.8
                         ):
                             if e == path:
                                 continue
@@ -135,7 +141,7 @@ def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
                             permission = permission_d
             if " " in permission:
                 permission = permission.replace(" ", "")
-            print(f"Add [{i} {permission}], May Not Right")
+            print(f"Add {i} {permission}")
             add_new += 1
             r_new_fs[i] = permission
             new_fs[i] = permission
