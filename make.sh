@@ -228,6 +228,11 @@ sudo unzip -o -q "$GITHUB_WORKSPACE"/"${device}"_files/displayconfig.zip -d "$GI
 echo -e "${Red}- 修复精准电量 (亮屏可用时长)"
 sudo rm -rf "$GITHUB_WORKSPACE"/images/system/system/app/PowerKeeper/*
 sudo unzip -o -q "$GITHUB_WORKSPACE"/"${device}"_files/PowerKeeper.zip -d "$GITHUB_WORKSPACE"/images/system/system/app/PowerKeeper/
+# 修复注视感知
+echo -e "${Red}- 修复注视感知"
+sudo rm -rf "$GITHUB_WORKSPACE"/images/product/app/MiAONService*
+mkdir "$GITHUB_WORKSPACE"/images/product/app/MiAONService
+sudo cp "$GITHUB_WORKSPACE"/"${device}"_files/MiAONService.apk "$GITHUB_WORKSPACE"/images/product/app/MiAONService
 # 统一 build.prop
 echo -e "${Red}- 统一 build.prop"
 sudo sed -i 's/ro.build.user=[^*]*/ro.build.user=YuKongA/' "$GITHUB_WORKSPACE"/images/system/system/build.prop
@@ -269,6 +274,9 @@ sudo unzip -o -q "$GITHUB_WORKSPACE"/"${device}"_files/CameraTools_beta.zip -d "
 echo -e "${Red}- 占位广告应用"
 sudo rm -rf "$GITHUB_WORKSPACE"/images/product/app/MSA/*
 sudo cp -f "$GITHUB_WORKSPACE"/"${device}"_files/MSA.apk "$GITHUB_WORKSPACE"/images/product/app/MSA
+# 替换开机动画
+echo -e "${Red}- 替换开机动画"
+sudo cp -f "$GITHUB_WORKSPACE"/"${device}"_files/bootanimation.zip "$GITHUB_WORKSPACE"/images/product/media/bootanimation.zip
 # 替换完美图标
 echo -e "${Red}- 替换完美图标"
 cd "$GITHUB_WORKSPACE"
