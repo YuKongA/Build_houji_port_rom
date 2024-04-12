@@ -1,4 +1,4 @@
-MiAONService#!/bin/bash
+#!/bin/bash
 
 sudo timedatectl set-timezone Asia/Shanghai
 sudo apt-get remove -y firefox zstd
