@@ -45,9 +45,9 @@ Start_Time() {
 End_Time() {
   local End_s End_ns time_s time_ns
   End_s=$(date +%s)
-  End_ns=10#$(date +%N)
-  time_s=$((End_s - Start_s))
-  time_ns=$((End_ns - Start_ns))
+  End_ns=$(date +%N)
+  time_s=$((10#$End_s - 10#$Start_s))
+  time_ns=$((10#$End_ns - 10#$Start_ns))
   if ((time_ns < 0)); then
     ((time_s--))
     ((time_ns += 1000000000))
