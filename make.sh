@@ -1,4 +1,4 @@
-#!/bin/bash
+MiAONService#!/bin/bash
 
 sudo timedatectl set-timezone Asia/Shanghai
 sudo apt-get remove -y firefox zstd
@@ -228,6 +228,11 @@ sudo unzip -o -q "$GITHUB_WORKSPACE"/"${device}"_files/displayconfig.zip -d "$GI
 echo -e "${Red}- 修复精准电量 (亮屏可用时长)"
 sudo rm -rf "$GITHUB_WORKSPACE"/images/system/system/app/PowerKeeper/*
 sudo unzip -o -q "$GITHUB_WORKSPACE"/"${device}"_files/PowerKeeper.zip -d "$GITHUB_WORKSPACE"/images/system/system/app/PowerKeeper/
+# 修复注视感知
+echo -e "${Red}- 修复注视感知"
+sudo rm -rf "$GITHUB_WORKSPACE"/images/product/app/MiAONService*
+mkdir "$GITHUB_WORKSPACE"/images/product/app/MiAONService
+sudo cp "$GITHUB_WORKSPACE"/"${device}"_files/MiAONService.apk "$GITHUB_WORKSPACE"/images/product/app/MiAONService
 # 统一 build.prop
 echo -e "${Red}- 统一 build.prop"
 sudo sed -i 's/ro.build.user=[^*]*/ro.build.user=YuKongA/' "$GITHUB_WORKSPACE"/images/system/system/build.prop
