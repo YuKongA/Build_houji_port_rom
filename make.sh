@@ -274,6 +274,9 @@ sudo unzip -o -q "$GITHUB_WORKSPACE"/"${device}"_files/CameraTools_beta.zip -d "
 echo -e "${Red}- 占位广告应用"
 sudo rm -rf "$GITHUB_WORKSPACE"/images/product/app/MSA/*
 sudo cp -f "$GITHUB_WORKSPACE"/"${device}"_files/MSA.apk "$GITHUB_WORKSPACE"/images/product/app/MSA
+# 替换开机动画
+echo -e "${Red}- 替换开机动画"
+sudo cp -f "$GITHUB_WORKSPACE"/"${device}"_files/bootanimation.zip "$GITHUB_WORKSPACE"/images/product/media/bootanimation.zip
 # 替换完美图标
 echo -e "${Red}- 替换完美图标"
 cd "$GITHUB_WORKSPACE"
