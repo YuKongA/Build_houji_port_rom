@@ -262,6 +262,25 @@ done
 # 分辨率修改
 echo -e "${Red}- 分辨率修改"
 sudo sed -i 's/persist.miui.density_v2=[^*]*/persist.miui.density_v2=480/' "$GITHUB_WORKSPACE"/images/product/etc/build.prop
+# 蓝牙编码使用adapt r2.2
+echo -e "\e[1;31m - 蓝牙编码修改 \e[0m"
+Find_character() {
+  FIND_FILE="$1"
+  FIND_STR="$2"
+  if [ $(grep -c "$FIND_STR" $FIND_FILE) -ne '0' ]; then
+    Character_present=true
+    echo -e "\e[1;33m - 找到指定字符: $2 \e[0m"
+  else
+    Character_present=false
+    echo -e "\e[1;33m - !未找到指定字符: $2 \e[0m"
+  fi
+}
+Find_character "$GITHUB_WORKSPACE"/"${device}"/vendor/build.prop persist.vendor.qcom.bluetooth.aptxadaptiver2_2_support
+if [[ $Character_present == true ]]; then
+  sudo sed -i 's/persist.vendor.qcom.bluetooth.aptxadaptiver2_2_support=[^*]*/persist.vendor.qcom.bluetooth.aptxadaptiver2_2_support=true/' "$GITHUB_WORKSPACE"/"${device}"/vendor/build.prop
+else
+  sudo sed -i ''"$(sudo sed -n '/persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support/=' "$GITHUB_WORKSPACE"/"${device}"/vendor/build.prop)"'a persist.vendor.qcom.bluetooth.aptxadaptiver2_2_support=true' "$GITHUB_WORKSPACE"/"${device}"/vendor/build.prop
+fi
 # 替换相机
 echo -e "${Red}- 替换相机"
 sudo rm -rf "$GITHUB_WORKSPACE"/images/product/priv-app/MiuiCamera/*
