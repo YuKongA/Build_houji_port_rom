@@ -262,6 +262,9 @@ done
 # 分辨率修改
 echo -e "${Red}- 分辨率修改"
 sudo sed -i 's/persist.miui.density_v2=[^*]*/persist.miui.density_v2=480/' "$GITHUB_WORKSPACE"/images/product/etc/build.prop
+# Add aptX Lossless
+echo -e "${Red}- Add aptX Lossless"
+sudo sed -i '/# end of file/i persist.vendor.qcom.bluetooth.aptxadaptiver2_2_support=true' "$GITHUB_WORKSPACE"/"${device}"/vendor/build.prop
 # 替换相机
 echo -e "${Red}- 替换相机"
 sudo rm -rf "$GITHUB_WORKSPACE"/images/product/priv-app/MiuiCamera/*
