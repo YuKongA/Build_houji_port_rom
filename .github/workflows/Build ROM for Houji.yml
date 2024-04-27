@@ -5,7 +5,7 @@ on:
       URL:
         description: "移植包下载地址"
         required: true
-        default: 'https://bkt-sgp-miui-ota-update-alisgp.oss-ap-southeast-1.aliyuncs.com/OS1.0.6.0.UNPCNXM/miui_PERIDOT_OS1.0.6.0.UNPCNXM_3203b5bae7_14.0.zip'
+        default: 'https://bkt-sgp-miui-ota-update-alisgp.oss-ap-southeast-1.aliyuncs.com/OS1.0.9.0.UNACNXM/miui_AURORA_OS1.0.9.0.UNACNXM_53b6a43c0e_14.0.zip'
       VENDOR_URL:
         description: "底包下载地址"
         required: true
