@@ -249,13 +249,93 @@ for vendor_build_prop in $(sudo find "$GITHUB_WORKSPACE"/"${device}"/ -type f -n
   sudo sed -i 's/build.date.utc=[^*]*/build.date.utc='"${build_utc}"'/' "${vendor_build_prop}"
   sudo sed -i 's/ro.mi.os.version.incremental=[^*]*/ro.mi.os.version.incremental='"${port_os_version}"'/' "${vendor_build_prop}"
 done
-# 精简部分应用
-echo -e "${Red}- 精简部分应用"
-apps=("MIGalleryLockscreen" "MIUIDriveMode" "MIUIDuokanReader" "MIUIGameCenter" "MIUINewHome" "MIUIYoupin" "MIUIHuanJi" "MIUIMiDrive" "MIUIVirtualSim" "ThirdAppAssistant" "XMRemoteController" "MIUIVipAccount" "MiuiScanner" "Xinre" "SmartHome" "MiShop" "MiRadio" "MIUICompass" "MediaEditor" "BaiduIME" "iflytek.inputmethod" "MIService" "MIUIEmail" "MIUIVideo" "MIUIMusicT")
+# 精简部分应用product/app
+echo -e "${Red}- 精简部分应用product/app"
+apps=("AiAsstVision" "AnalyticsCore" "CameraTools_beta" "CarWith" "CatchLog" "com.xiaomi.macro" "com.xiaomi.ugd" "ConferenceDialer" "DeviceInfoQR" "EidService" "FidoAuthen2" "FusedLocationProvider" "GoogleLocationHistory" "GooglePrintRecommendationService" "HybridPlatform" "MediaViewer" "MetokNLP" "mi_connect_service" "MiBugReport" "MiLinkCirculateMIUI15" "MINextpay" "MIS" "MiTrustService" "MIUIAccessibility" "MIUIAiasstService" "MiuiCit" "MiuiContentCatcherMIUI15" "MIUIgreenguard" "MIUIReporter" "MIUISecurityInputMethod" "MIUITouchAssistant" "MSA" "Music" "OtaProvision" "OTrPBroker" "PaymentService" "remoteSimLockAuthentication" "remotesimlockservice" "RideModeAudio" "SecurityOnetrackService" "SwitchAccess" "system" "talkback" "uimgbaservice" "uimlpaservice"  "uimremoteclient" "uimremoteserver" "UPTsmService" "WMService" "XiaoaiEdgeEngine" "XiaoaiRecommendation" "XiaomiSimActivateService" "XMSFKeeperAll")
+for app in "${apps[@]}"; do
+  appsui=$(sudo find "$GITHUB_WORKSPACE"/images/product/app/ -type d -iname "*${app}*")
+  if [[ -n $appsui ]]; then
+    echo -e "${Yellow}- 找到精简目录2: $appsui"
+    sudo rm -rf "$appsui"
+  fi
+done
+# 精简部分应用product/data-app
+echo -e "${Red}- 精简部分应用product/data-app"
+apps=("DownloadProviderUi" "MIGalleryLockscreen-MIUI15" "MIMediaEditor" "MIGalleryLockscreen" "MIUIDriveMode" "MIUIDuokanReader" "MIUIGameCenter" "MIUINewHome" "MIUIYoupin" "MIUIHuanJi" "MIUIMiDrive" "MIUIVirtualSim" "ThirdAppAssistant" "XMRemoteController" "MIUIVipAccount" "MiuiScanner" "Xinre" "SmartHome" "MiShop" "MiRadio" "MIUICompass" "MediaEditor" "BaiduIME" "iflytek.inputmethod" "MIService" "MIUIEmail" "MIUIVideo" "MIUIMusicT")
 for app in "${apps[@]}"; do
   appsui=$(sudo find "$GITHUB_WORKSPACE"/images/product/data-app/ -type d -iname "*${app}*")
   if [[ -n $appsui ]]; then
-    echo -e "${Yellow}- 找到精简目录: $appsui"
+    echo -e "${Yellow}- 找到精简目录1: $appsui"
+    sudo rm -rf "$appsui"
+  fi
+done
+# 精简部分应用product/overlay
+echo -e "${Red}- 精简部分应用product/overlay"
+apps=("CellBroadcastReceiverResCommon_Sys.apk" "ElderlyNavigationBarOverlay.apk" "FontNotoSerifSource" "MiuiCellBroadcastReceiverOverlay.apk" "MiuiCellBroadcastServiceOverlay.apk" "MiuiLundunLockscreenOverlay.apk" "MiuiLundunWallpaperOverlay.apk" "MiuiPocoLauncherResOverlay.apk" "MiuiPOCOLockscreenOverlay.apk" "MiuiPOCOWallpaperOverlay.apk" "MiuiServiceOverlay" "NavigationBarMode3Button" "NavigationBarModeGestural" "NavigationBarModeGesturalExtraWideBack" "NavigationBarModeGesturalNarrowBack" "NavigationBarModeGesturalWideBack" "VoiceAssistAndroidOverlay")
+for app in "${apps[@]}"; do
+  appsui=$(sudo find "$GITHUB_WORKSPACE"/images/product/overlay/ -type d -iname "*${app}*")
+  if [[ -n $appsui ]]; then
+    echo -e "${Yellow}- 找到精简目录3: $appsui"
+    sudo rm -rf "$appsui"
+  fi
+done
+# 精简部分应用product/priv-app
+echo -e "${Red}- 精简部分应用product/priv-app"
+apps=("SystemHelper" "AutoRegistration" "ConfigUpdater" "GoogleOneTimeInitializer" "GooglePlayServicesUpdater" "MiGameCenterSDKService" "MIUIAICR" "MIUIBarrageV2" "MIUIContentExtension" "MIUIMirror" "MIUIQuickSearchBox" "RegService" "SettingsIntelligence")
+for app in "${apps[@]}"; do
+  appsui=$(sudo find "$GITHUB_WORKSPACE"/images/product/priv-app/ -type d -iname "*${app}*")
+  if [[ -n $appsui ]]; then
+    echo -e "${Yellow}- 找到精简目录4: $appsui"
+    sudo rm -rf "$appsui"
+  fi
+done
+# 精简部分应用system_ext/app
+echo -e "${Red}- 精简部分应用system_ext/app"
+apps=("atfwd" "AtFwd2" "colorservice" "DeviceInfo" "DeviceStatisticsService" "digitalkey" "MiSightService" "MiuiDaemon" "MiuiPrintSpooler" "MIUIMirror" "ModemTestBox" "PowerOffAlarm" "QCC" "QColor" "QesdkSysService" "SimContact" "uceShimService" "VsimCore" "WAPPushManager" "workloadclassifier")
+for app in "${apps[@]}"; do
+  appsui=$(sudo find "$GITHUB_WORKSPACE"/images/system_ext/app/ -type d -iname "*${app}*")
+  if [[ -n $appsui ]]; then
+    echo -e "${Yellow}- 找到精简目录5: $appsui"
+    sudo rm -rf "$appsui"
+  fi
+done
+# 精简部分应用system_ext/priv-app
+echo -e "${Red}- 精简部分应用system_ext/priv-app"
+apps=("AccessibilityMenu" "com.qualcomm.location" "com.qualcomm.qti.services.systemhelper" "dcf" "dpmserviceapp" "EmergencyInfo" "MiuiWifiDialog" "PerformanceMode" "QtiWifiService" "QualcommVoiceActivation" "StorageManager" "WallpaperCropper" "QCC" "WfdService" "xrcbservice" "xrvdservice")
+for app in "${apps[@]}"; do
+  appsui=$(sudo find "$GITHUB_WORKSPACE"/images/system_ext/priv-app/ -type d -iname "*${app}*")
+  if [[ -n $appsui ]]; then
+    echo -e "${Yellow}- 找到精简目录6: $appsui"
+    sudo rm -rf "$appsui"
+  fi
+done
+# 精简部分应用vendor/app
+echo -e "${Red}- 精简部分应用vendor/app"
+apps=("CACertService" "CneApp" "com.qualcomm.qti.gpudrivers.pineapple.api34" "IWlanService" "TimeService" "TxPwrAdmin")
+for app in "${apps[@]}"; do
+  appsui=$(sudo find "$GITHUB_WORKSPACE"/images/vendor/app/ -type d -iname "*${app}*")
+  if [[ -n $appsui ]]; then
+    echo -e "${Yellow}- 找到精简目录7: $appsui"
+    sudo rm -rf "$appsui"
+  fi
+done
+# 精简部分应用system/app
+echo -e "${Red}- 精简部分应用system/app"
+apps=("AnalyticsCore" "BasicDreams" "BluetoothMidiService" "IWlanService" "CameraExtensionsProxy" "CaptivePortalLogin" "CarrierDefaultApp" "CertInstaller" "CompanionDeviceManager" "PacProcessor" "PartnerBookmarksProvider" "PrintRecommendationService" "Protips" "SimAppDialog" "Stk" "Traceur" "WallpaperBackup" "WapiCertManage")
+for app in "${apps[@]}"; do
+  appsui=$(sudo find "$GITHUB_WORKSPACE"/images/system/system/app/ -type d -iname "*${app}*")
+  if [[ -n $appsui ]]; then
+    echo -e "${Yellow}- 找到精简目录8: $appsui"
+    sudo rm -rf "$appsui"
+  fi
+done
+# 精简部分应用system/priv-app
+echo -e "${Red}- 精简部分应用system/priv-app"
+apps=("BackupRestoreConfirmation" "BlockedNumberProvider" "BuiltInPrintService" "CallLogBackup" "CellBroadcastLegacyApp" "CellBroadcastServiceModulePlatform" "CredentialManager" "DynamicSystemInstallationService" "IntentResolver" "LiveWallpapersPicker" "LocalTransport" "ManagedProvisioning" "MediaProviderLegacy" "MiGameCenterSDKService" "MmsService" "MusicFX" "ONS" "PackageInstaller" "ProxyHandler" "StatementService" "Tag" "UserDictionaryProvider")
+for app in "${apps[@]}"; do
+  appsui=$(sudo find "$GITHUB_WORKSPACE"/images/system/system/priv-app/ -type d -iname "*${app}*")
+  if [[ -n $appsui ]]; then
+    echo -e "${Yellow}- 找到精简目录9: $appsui"
     sudo rm -rf "$appsui"
   fi
 done
